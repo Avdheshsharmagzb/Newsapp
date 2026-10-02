@@ -548,6 +548,43 @@ async def seed_data():
     logger.info("Seeding complete.")
 
 
+async def topup_news():
+    """हर अखबार पृष्ठ पर कम से कम ~11 समाचार सुनिश्चित करें (8 कॉलम भरने के लिए)।"""
+    authors = await db.authors.find({}, {"_id": 0, "name": 1}).to_list(100)
+    names = [a["name"] for a in authors] or ["संवाददाता"]
+    page_cat = {1: "राष्ट्रीय", 2: "राज्य", 3: "सिटी", 4: "संपादकीय", 5: "कारोबार", 6: "खेल", 7: "मनोरंजन", 8: "विदेश"}
+    topics = {
+        1: ["विकास", "सुरक्षा", "रोजगार", "योजना", "स्वास्थ्य"],
+        2: ["शिक्षा", "सिंचाई", "बिजली", "सड़क", "कानून"],
+        3: ["नगर निगम", "जलापूर्ति", "सफाई", "यातायात", "बाजार"],
+        4: ["लोकतंत्र", "पर्यावरण", "युवा", "समाज", "संस्कृति"],
+        5: ["बाजार", "निवेश", "उद्योग", "व्यापार", "बैंक"],
+        6: ["क्रिकेट", "हॉकी", "कुश्ती", "फुटबॉल", "एथलेटिक्स"],
+        7: ["सिनेमा", "संगीत", "टीवी", "फैशन", "लाइफस्टाइल"],
+        8: ["वैश्विक", "कूटनीति", "व्यापार", "जलवायु", "तकनीक"],
+    }
+    templates = ["{} को लेकर अहम बैठक", "{} में नई पहल शुरू", "{} पर सरकार का जोर",
+                 "{} से मिलेगी राहत", "{} को मिली मंजूरी", "{} में उल्लेखनीय बढ़ोतरी",
+                 "{} पर विस्तृत चर्चा", "{} में सुधार के संकेत", "{} को लेकर नई घोषणा"]
+    for pg in range(1, 9):
+        cnt = await db.articles.count_documents({"newspaper_page": pg, "target": {"$in": ["newspaper", "both"]}})
+        need = 11 - cnt
+        if need <= 0:
+            continue
+        combos = [(t.format(topic), f"{page_cat[pg]} डेस्क की रिपोर्ट") for topic in topics[pg] for t in templates]
+        for i in range(need):
+            title, sub = combos[i % len(combos)]
+            art = Article(
+                title=title, subtitle=sub,
+                body="यह एक संक्षिप्त समाचार है जो पृष्ठ के कॉलम को भरने के लिए जोड़ा गया है। " * 6,
+                category=page_cat[pg], author=names[i % len(names)],
+                target="both", status="published", newspaper_page=pg,
+                column_span=1, is_lead=False, views=(pg * 29 + i * 13) % 600,
+            )
+            await db.articles.insert_one(art.model_dump())
+    logger.info("Top-up news complete.")
+
+
 @app.on_event("startup")
 async def startup():
     try:
@@ -556,6 +593,7 @@ async def startup():
     except Exception as e:
         logger.error(f"Storage init failed: {e}")
     await seed_data()
+    await topup_news()
 
 
 @app.on_event("shutdown")

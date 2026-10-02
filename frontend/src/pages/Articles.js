@@ -205,12 +205,17 @@ export default function Articles() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1.5 block">कॉलम चौड़ाई (१-३)</label>
+                  <label className="text-sm text-slate-300 mb-1.5 block">कॉलम चौड़ाई (१-८)</label>
                   <select data-testid="input-span" className={input} style={inputStyle} value={form.column_span}
                           onChange={(e) => setForm({ ...form, column_span: e.target.value })}>
                     <option value={1}>१ कॉलम</option>
                     <option value={2}>२ कॉलम</option>
-                    <option value={3}>३ कॉलम (पूर्ण)</option>
+                    <option value={3}>३ कॉलम</option>
+                    <option value={4}>४ कॉलम</option>
+                    <option value={5}>५ कॉलम</option>
+                    <option value={6}>६ कॉलम</option>
+                    <option value={7}>७ कॉलम</option>
+                    <option value={8}>८ कॉलम (पूर्ण)</option>
                   </select>
                 </div>
                 <div className="flex items-end">

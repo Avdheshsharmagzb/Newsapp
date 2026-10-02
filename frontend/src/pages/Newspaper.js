@@ -149,20 +149,27 @@ export default function Newspaper() {
               </div>
             )}
 
-            {/* Other stories in columns */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 np-col-divider">
-              {rest.map((a) => (
-                <article key={a.id} className={`sm:pl-5 ${a.column_span >= 2 ? "lg:col-span-2" : ""} ${a.column_span >= 3 ? "lg:col-span-3" : ""}`} data-testid={`np-article-${a.id}`}>
-                  <h3 className="np-headline text-xl mb-1.5">{a.title}</h3>
-                  {a.subtitle && <p className="font-print text-sm text-gray-700 mb-2 italic">{a.subtitle}</p>}
-                  {a.image_url && a.column_span >= 2 && (
-                    <img src={resolveImg(a.image_url)} alt="" className="w-full h-40 object-cover mb-2" style={{ border: "1px solid var(--paper-border)" }} />
-                  )}
-                  <p className="np-body text-sm">
-                    <span className="font-bold">{a.author ? `${a.author}।` : ""}</span> {a.body?.slice(0, 320)}...
-                  </p>
-                </article>
-              ))}
+            {/* 8-column broadsheet grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-x-5 gap-y-7"
+                 style={{ gridAutoFlow: "dense" }} data-testid="np-columns">
+              {rest.map((a) => {
+                const span = Math.min(Math.max(a.column_span || 1, 1), 8);
+                const wide = span >= 3;
+                return (
+                  <article key={a.id}
+                           style={{ gridColumn: `span ${span}`, borderLeft: "1px solid var(--col-rule)", paddingLeft: "1rem" }}
+                           data-testid={`np-article-${a.id}`}>
+                    <h3 className={`np-headline mb-1.5 ${wide ? "text-2xl" : "text-lg"}`}>{a.title}</h3>
+                    {a.subtitle && <p className="font-print text-sm text-gray-700 mb-2 italic">{a.subtitle}</p>}
+                    {a.image_url && span >= 2 && (
+                      <img src={resolveImg(a.image_url)} alt="" className="w-full h-36 object-cover mb-2" style={{ border: "1px solid var(--paper-border)" }} />
+                    )}
+                    <p className="np-body text-sm">
+                      <span className="font-bold">{a.author ? `${a.author}।` : ""}</span> {a.body?.slice(0, wide ? 420 : 200)}...
+                    </p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         )}
@@ -209,6 +216,11 @@ export default function Newspaper() {
                           <option value={1}>१ कॉलम</option>
                           <option value={2}>२ कॉलम</option>
                           <option value={3}>३ कॉलम</option>
+                          <option value={4}>४ कॉलम</option>
+                          <option value={5}>५ कॉलम</option>
+                          <option value={6}>६ कॉलम</option>
+                          <option value={7}>७ कॉलम</option>
+                          <option value={8}>८ कॉलम</option>
                         </select>
                       </div>
                     )}
