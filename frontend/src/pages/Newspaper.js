@@ -24,6 +24,12 @@ export default function Newspaper() {
   useEffect(() => { api.get("/newspaper/pages").then((r) => setPages(r.data)); }, []);
   useEffect(() => { loadPage(page); }, [page, loadPage]);
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setShowEditor(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const meta = pages.find((p) => p.page === page) || { title: "", subtitle: "" };
 
   const openEditor = () => {
