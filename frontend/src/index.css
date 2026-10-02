@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Martel:wght@400;600;700;800;900&family=Noto+Serif+Devanagari:wght@400;600;700;800&family=Yantra+Manav:wght@400;500;700;900&family=Outfit:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --jg-red: #DC2626;
+  --jg-red-dark: #991B1B;
+  --bg-main: #0F172A;
+  --bg-surface: #1E293B;
+  --bg-hover: #334155;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border: #334155;
+  --gold: #D97706;
+  --green: #16A34A;
+
+  --paper-bg: #FAF8F5;
+  --paper-border: #E2D8C3;
+  --ink: #111111;
+  --jagran-red: #C81E1E;
+  --col-rule: #D1D5DB;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Yantra Manav', 'Outfit', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-ui { font-family: 'Yantra Manav', 'Outfit', sans-serif; }
+.font-news { font-family: 'Martel', 'Noto Serif Devanagari', serif; }
+.font-print { font-family: 'Noto Serif Devanagari', serif; line-height: 1.6; }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Dashboard surfaces */
+.jg-surface {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.jg-nav-item {
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.stagger-in {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: staggerIn .5s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes staggerIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Newspaper broadsheet ---------- */
+.newspaper {
+  background: var(--paper-bg);
+  color: var(--ink);
+  border: 1px solid var(--paper-border);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+}
+
+.masthead-title {
+  font-family: 'Martel', serif;
+  font-weight: 900;
+  color: var(--jagran-red);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.np-col-divider > * + * {
+  border-left: 1px solid var(--col-rule);
+}
+
+.np-headline {
+  font-family: 'Martel', 'Noto Serif Devanagari', serif;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.np-body {
+  font-family: 'Noto Serif Devanagari', serif;
+  line-height: 1.65;
+  color: #222;
+  text-align: justify;
+}
+
+.drop-cap::first-letter {
+  font-family: 'Martel', serif;
+  font-weight: 900;
+  font-size: 3.2em;
+  float: left;
+  line-height: .8;
+  padding: 6px 8px 0 0;
+  color: var(--jagran-red);
+}
+
+.np-rule-top { border-top: 2px solid var(--ink); }
+.np-rule-thin { border-top: 1px solid var(--col-rule); }
+
+@media print {
+  .no-print { display: none !important; }
+}
