@@ -284,14 +284,22 @@ async def delete_article(aid: str):
 
 # ---------------- Newspaper ----------------
 NEWSPAPER_PAGES = [
-    {"page": 1, "title": "मुख्य समाचार", "subtitle": "Front Page"},
-    {"page": 2, "title": "राष्ट्रीय एवं राज्य", "subtitle": "National & State"},
-    {"page": 3, "title": "सिटी", "subtitle": "Local City News"},
-    {"page": 4, "title": "विचार / संपादकीय", "subtitle": "Editorial & Opinion"},
-    {"page": 5, "title": "कारोबार", "subtitle": "Business & Market"},
-    {"page": 6, "title": "खेल", "subtitle": "Sports"},
-    {"page": 7, "title": "मनोरंजन / लाइफस्टाइल", "subtitle": "Entertainment"},
-    {"page": 8, "title": "विदेश / विशेष", "subtitle": "World News & Special"},
+    {"page": 1, "title": "मुख्य समाचार", "subtitle": "राष्ट्रीय · अंतरराष्ट्रीय · लखनऊ",
+     "guide": "फ्रंट पेज: 3 राष्ट्रीय, 2 अंतरराष्ट्रीय, 2 लखनऊ मुख्य समाचार"},
+    {"page": 2, "title": "दिल्ली / NCR", "subtitle": "Delhi NCR",
+     "guide": "दिल्ली एवं एनसीआर क्षेत्र की खबरें"},
+    {"page": 3, "title": "गाज़ियाबाद", "subtitle": "Ghaziabad",
+     "guide": "गाज़ियाबाद शहर एवं जिले की खबरें"},
+    {"page": 4, "title": "मेरठ मंडल", "subtitle": "बुलंदशहर · हापुड़ · मुज़फ्फरनगर · मेरठ",
+     "guide": "बुलंदशहर, हापुड़, मुज़फ्फरनगर एवं मेरठ की खबरें"},
+    {"page": 5, "title": "धर्म-अध्यात्म", "subtitle": "धर्म · आयुर्वेद · योग · जीवनियाँ",
+     "guide": "धर्म, आयुर्वेद, योग एवं महापुरुषों की जीवनियाँ"},
+    {"page": 6, "title": "ज्ञान एवं वाणिज्य", "subtitle": "अर्थव्यवस्था · शिक्षा · चिकित्सा",
+     "guide": "अर्थव्यवस्था, शिक्षा, चिकित्सा एवं अखबार संबंधी विवरण"},
+    {"page": 7, "title": "मनोरंजन", "subtitle": "Entertainment",
+     "guide": "फिल्म, संगीत एवं मनोरंजन जगत"},
+    {"page": 8, "title": "खेल एवं विशेष", "subtitle": "खेल · अंतरराष्ट्रीय · प्रेरक प्रसंग",
+     "guide": "खेल जगत, अंतरराष्ट्रीय खबरें एवं प्रेरक प्रसंग"},
 ]
 
 
@@ -585,6 +593,22 @@ async def topup_news():
     logger.info("Top-up news complete.")
 
 
+async def ensure_categories():
+    wanted = [
+        ("राष्ट्रीय", "#DC2626"), ("अंतरराष्ट्रीय", "#059669"), ("लखनऊ", "#D97706"),
+        ("दिल्ली NCR", "#2563EB"), ("गाज़ियाबाद", "#0891B2"), ("मेरठ मंडल", "#7C3AED"),
+        ("धर्म-अध्यात्म", "#DB2777"), ("आयुर्वेद/योग", "#16A34A"), ("अर्थव्यवस्था", "#CA8A04"),
+        ("शिक्षा", "#4F46E5"), ("चिकित्सा", "#E11D48"), ("मनोरंजन", "#DB2777"),
+        ("खेल", "#0891B2"), ("प्रेरक प्रसंग", "#9333EA"),
+    ]
+    existing = {c["name"] for c in await db.categories.find({}, {"_id": 0, "name": 1}).to_list(1000)}
+    order = await db.categories.count_documents({})
+    for name, color in wanted:
+        if name not in existing:
+            order += 1
+            await db.categories.insert_one(Category(name=name, color=color, order=order).model_dump())
+
+
 @app.on_event("startup")
 async def startup():
     try:
@@ -594,6 +618,7 @@ async def startup():
         logger.error(f"Storage init failed: {e}")
     await seed_data()
     await topup_news()
+    await ensure_categories()
 
 
 @app.on_event("shutdown")

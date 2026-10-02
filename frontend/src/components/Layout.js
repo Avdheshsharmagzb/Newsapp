@@ -1,14 +1,15 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Newspaper as NewspaperIcon, FileText, Tags,
-  Users, Image, MessageSquare, BarChart3, Menu, X
+  Users, Image, MessageSquare, BarChart3, Menu, X, LayoutGrid
 } from "lucide-react";
 import { useState } from "react";
 
 const NAV = [
   { to: "/", label: "मुख्य डैशबोर्ड", icon: LayoutDashboard, testid: "nav-overview" },
   { to: "/articles", label: "समाचार प्रबंधन", icon: FileText, testid: "nav-articles" },
-  { to: "/newspaper", label: "८-पेज अखबार", icon: NewspaperIcon, testid: "nav-newspaper" },
+  { to: "/layout", label: "लेआउट पैनल (८ पेज)", icon: LayoutGrid, testid: "nav-layout" },
+  { to: "/newspaper", label: "अखबार व्यूअर", icon: NewspaperIcon, testid: "nav-newspaper" },
   { to: "/categories", label: "श्रेणियाँ", icon: Tags, testid: "nav-categories" },
   { to: "/authors", label: "लेखक / संवाददाता", icon: Users, testid: "nav-authors" },
   { to: "/media", label: "मीडिया लाइब्रेरी", icon: Image, testid: "nav-media" },

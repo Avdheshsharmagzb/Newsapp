@@ -5,6 +5,7 @@ import Layout from "@/components/Layout";
 import Overview from "@/pages/Overview";
 import Articles from "@/pages/Articles";
 import Newspaper from "@/pages/Newspaper";
+import LayoutPanel from "@/pages/LayoutPanel";
 import Categories from "@/pages/Categories";
 import Authors from "@/pages/Authors";
 import Media from "@/pages/Media";
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<Overview />} />
             <Route path="/articles" element={<Articles />} />
             <Route path="/newspaper" element={<Newspaper />} />
+            <Route path="/layout" element={<LayoutPanel />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/authors" element={<Authors />} />
             <Route path="/media" element={<Media />} />
