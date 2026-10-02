@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Newspaper as NewspaperIcon, FileText, Tags,
-  Users, Image, MessageSquare, BarChart3, Menu, X, LayoutGrid
+  Users, Image, MessageSquare, BarChart3, Menu, X, LayoutGrid, FileDown
 } from "lucide-react";
 import { useState } from "react";
 
@@ -10,6 +10,7 @@ const NAV = [
   { to: "/articles", label: "समाचार प्रबंधन", icon: FileText, testid: "nav-articles" },
   { to: "/layout", label: "लेआउट पैनल (८ पेज)", icon: LayoutGrid, testid: "nav-layout" },
   { to: "/newspaper", label: "अखबार व्यूअर", icon: NewspaperIcon, testid: "nav-newspaper" },
+  { to: "/epaper", label: "ई-पेपर / एक्सपोर्ट", icon: FileDown, testid: "nav-epaper" },
   { to: "/categories", label: "श्रेणियाँ", icon: Tags, testid: "nav-categories" },
   { to: "/authors", label: "लेखक / संवाददाता", icon: Users, testid: "nav-authors" },
   { to: "/media", label: "मीडिया लाइब्रेरी", icon: Image, testid: "nav-media" },

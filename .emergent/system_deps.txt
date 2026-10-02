@@ -1,0 +1,5 @@
+fonts-lohit-deva=2.95.4-5
+libgdk-pixbuf-2.0-0=2.42.10+dfsg-1+deb12u4
+libpangocairo-1.0-0=1.50.12+ds-1
+poppler-utils=22.12.0-2+deb12u3
+shared-mime-info=2.2-1

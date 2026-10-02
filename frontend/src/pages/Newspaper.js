@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { api, resolveImg } from "@/lib/api";
+import { api, resolveImg, API } from "@/lib/api";
 import { toast } from "sonner";
 import { Printer, Settings2, ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -60,6 +60,10 @@ export default function Newspaper() {
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-slate-200" style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
             <Settings2 size={17} /> लेआउट संपादक
           </button>
+          <a data-testid="pdf-btn" href={`${API}/export/pdf?page=${page}`} target="_blank" rel="noreferrer"
+             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-200 text-sm font-semibold" style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
+            <Printer size={17} /> वेक्टर PDF
+          </a>
           <button data-testid="print-btn" onClick={() => window.print()}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ background: "var(--jg-red)" }}>
             <Printer size={17} /> प्रिंट

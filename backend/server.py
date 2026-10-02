@@ -447,6 +447,129 @@ async def analytics_overview():
     }
 
 
+import html as _html
+
+
+def _hindi_date():
+    DAYS = {0: "सोमवार", 1: "मंगलवार", 2: "बुधवार", 3: "गुरुवार", 4: "शुक्रवार", 5: "शनिवार", 6: "रविवार"}
+    MONTHS = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
+    d = datetime.now(timezone.utc)
+    return f"{DAYS[d.weekday()]}, {d.day} {MONTHS[d.month - 1]} {d.year}"
+
+
+def _abs_img(url):
+    if not url:
+        return ""
+    if url.startswith("http"):
+        return url
+    return "http://localhost:8001" + url
+
+
+def _esc(s):
+    return _html.escape(s or "")
+
+
+def _page_section_html(meta, articles, idx, total):
+    hn = ["०१", "०२", "०३", "०४", "०५", "०६", "०७", "०८"]
+    arts = sorted(articles, key=lambda d: (not d.get("is_lead"), d.get("created_at", "")))
+    lead = arts[0] if arts else None
+    rest = arts[1:] if arts else []
+    page = meta["page"]
+    if page == 1:
+        masthead = (
+            '<div class="mast1"><div class="ear">वर्ष ८२<br>अंक २१४<br>मूल्य ₹ ५</div>'
+            '<div class="mastc"><div class="mtitle">दैनिक जागरण</div>'
+            '<div class="mtag">सत्य · निष्ठा · निर्भीक पत्रकारिता</div></div>'
+            '<div class="ear">मौसम<br>दिन ३४°C<br>रात २२°C</div></div>'
+            f'<div class="dateline"><span>नई दिल्ली</span><span>{_hindi_date()}</span><span>पृष्ठ ०१ · कुल ०८</span></div>'
+        )
+    else:
+        masthead = f'<div class="mast2"><span class="mtitle2">दैनिक जागरण</span><span>{_hindi_date()}</span></div>'
+    lead_html = ""
+    if lead:
+        img = _abs_img(lead.get("image_url"))
+        imgtag = f'<img class="limg" src="{img}" />' if img else ""
+        sub = f'<p class="lsub">{_esc(lead.get("subtitle"))}</p>' if lead.get("subtitle") else ""
+        lead_html = (
+            f'<div class="lead"><h2 class="lh">{_esc(lead["title"])}</h2>{sub}{imgtag}'
+            f'<p class="body"><b>{_esc(lead.get("author"))}।</b> {_esc(lead.get("body"))}</p></div>'
+        )
+    arts_html = ""
+    for a in rest:
+        img = _abs_img(a.get("image_url"))
+        imgtag = f'<img src="{img}" />' if img and (a.get("column_span", 1) >= 2) else ""
+        sub = f'<p class="asub">{_esc(a.get("subtitle"))}</p>' if a.get("subtitle") else ""
+        arts_html += (
+            f'<div class="art"><h3 class="ah">{_esc(a["title"])}</h3>{sub}{imgtag}'
+            f'<p class="body"><b>{_esc(a.get("author"))}।</b> {_esc((a.get("body") or "")[:600])}</p></div>'
+        )
+    brk = "" if idx == total - 1 else "page-break-after: always;"
+    return (
+        f'<section class="page" style="{brk}">{masthead}'
+        f'<div class="secbar"><span>{_esc(meta["title"])}</span><span>जागरण विशेष · पृष्ठ {hn[page - 1]}</span></div>'
+        f'<div class="cols">{lead_html}{arts_html}</div>'
+        f'<div class="foot"><span>दैनिक जागरण · {_esc(meta.get("subtitle"))}</span><span>पृष्ठ {page} / ८</span></div>'
+        f'</section>'
+    )
+
+
+def _build_pdf_html(sections_html):
+    css = """
+    @font-face { font-family:'Martel'; src:url('fonts/Martel-Regular.ttf'); font-weight:400; }
+    @font-face { font-family:'Martel'; src:url('fonts/Martel-Bold.ttf'); font-weight:700; }
+    @font-face { font-family:'Martel'; src:url('fonts/Martel-ExtraBold.ttf'); font-weight:800; }
+    @page { size: 297mm 420mm; margin: 12mm; }
+    * { box-sizing:border-box; }
+    body { font-family:'Martel','Lohit Devanagari',serif; color:#111; margin:0; }
+    .mast1 { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #111; padding-bottom:6px; }
+    .ear { font-size:9pt; border:1px solid #ddd; padding:4px 8px; line-height:1.4; }
+    .mastc { text-align:center; flex:1; }
+    .mtitle { font-weight:800; font-size:46pt; color:#C81E1E; line-height:1; }
+    .mtag { font-size:9pt; margin-top:3px; }
+    .mast2 { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #111; padding-bottom:4px; }
+    .mtitle2 { font-weight:800; font-size:22pt; color:#C81E1E; }
+    .dateline { display:flex; justify-content:space-between; font-size:9pt; border-bottom:1px solid #111; padding:4px 0; }
+    .secbar { background:#C81E1E; color:#fff; display:flex; justify-content:space-between; padding:5px 10px; margin:8px 0; font-weight:700; font-size:13pt; }
+    .cols { column-count:4; column-gap:6mm; column-rule:1px solid #cfc8ba; }
+    .lead { column-span:all; border-bottom:2px solid #111; padding-bottom:5mm; margin-bottom:5mm; }
+    .lh { font-weight:800; font-size:30pt; line-height:1.12; margin:0 0 4px; }
+    .lsub { font-style:italic; font-size:13pt; margin:0 0 6px; color:#333; }
+    .limg { width:45%; float:left; margin:0 5mm 3mm 0; border:1px solid #ddd; }
+    .ah { font-weight:800; font-size:15pt; line-height:1.15; margin:0 0 3px; }
+    .asub { font-style:italic; font-size:10pt; margin:0 0 4px; color:#333; }
+    .art { break-inside:avoid; margin-bottom:5mm; }
+    .body { font-size:10.5pt; line-height:1.55; text-align:justify; margin:4px 0 0; }
+    img { width:100%; height:auto; margin:4px 0; border:1px solid #ddd; }
+    .foot { border-top:1px solid #111; display:flex; justify-content:space-between; font-size:9pt; padding-top:4px; margin-top:6px; }
+    """
+    return f"<!doctype html><html><head><meta charset='utf-8'><style>{css}</style></head><body>{sections_html}</body></html>"
+
+
+@api_router.get("/export/pdf")
+async def export_pdf(page: str = "all"):
+    try:
+        from weasyprint import HTML
+    except Exception as e:
+        raise HTTPException(500, f"PDF इंजन उपलब्ध नहीं: {e}")
+    if page == "all":
+        pages = NEWSPAPER_PAGES
+    else:
+        pages = [p for p in NEWSPAPER_PAGES if str(p["page"]) == str(page)]
+        if not pages:
+            raise HTTPException(404, "पृष्ठ नहीं मिला")
+    sections = ""
+    for i, meta in enumerate(pages):
+        arts = await db.articles.find(
+            {"newspaper_page": meta["page"], "target": {"$in": ["newspaper", "both"]}}, {"_id": 0}
+        ).to_list(1000)
+        sections += _page_section_html(meta, arts, i, len(pages))
+    html_doc = _build_pdf_html(sections)
+    pdf = HTML(string=html_doc, base_url=str(ROOT_DIR)).write_pdf()
+    fname = "dainik-jagran-8page.pdf" if page == "all" else f"dainik-jagran-page-{page}.pdf"
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f"inline; filename={fname}"})
+
+
 @api_router.get("/")
 async def root():
     return {"message": "दैनिक जागरण CMS API"}
